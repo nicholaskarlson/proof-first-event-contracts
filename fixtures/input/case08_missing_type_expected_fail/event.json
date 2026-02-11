@@ -1,0 +1,8 @@
+{
+  "specversion": "1.0",
+  "source": "//storage.googleapis.com/projects/_/buckets/pf-drop-bucket",
+  "id": "evt-08",
+  "subject": "objects/drop/left.csv",
+  "time": "2020-01-01T00:00:00Z",
+  "data": { "bucket": "pf-drop-bucket", "name": "drop/left.csv" }
+}

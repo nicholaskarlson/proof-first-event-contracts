@@ -1,0 +1,9 @@
+{
+  "specversion": "1.0",
+  "type": "google.cloud.storage.object.v1.finalized",
+  "source": "//storage.googleapis.com/projects/_/buckets/pf-drop-bucket",
+  "id": "evt-11",
+  "subject": "objects/drop/right.csv",
+  "time": "2020-01-01T00:00:00Z",
+  "data": { "bucket": "pf-drop-bucket" }
+}

@@ -1,0 +1,5 @@
+{
+  "bucket": "pf-drop-bucket",
+  "name": "drop/A%2BB.csv",
+  "name_unescaped": "drop/A+B.csv"
+}

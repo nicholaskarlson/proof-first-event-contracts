@@ -1,0 +1,10 @@
+{
+  "should_run": false,
+  "decision": "ignore",
+  "reason": "ignore: non-finalize event (com.example.weird)",
+  "event_type": "com.example.weird",
+  "event_id": "evt-12",
+  "bucket": "pf-drop-bucket",
+  "object": "drop/left.csv",
+  "object_unescaped": "drop/left.csv"
+}
