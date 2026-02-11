@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nicholaskarlson/proof-first-event-contracts/internal/contract"
+	"github.com/nicholaskarlson/proof-first-event-contracts/contract"
 	"github.com/nicholaskarlson/proof-first-event-contracts/internal/fsx"
 )
 
