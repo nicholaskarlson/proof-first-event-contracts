@@ -1,0 +1,1 @@
+error: finalized event missing required fields (data.bucket/data.name)

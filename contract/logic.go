@@ -30,8 +30,8 @@ type Decision struct {
 	EventType string `json:"event_type"`
 	EventID   string `json:"event_id,omitempty"`
 
-	Bucket         string `json:"bucket,omitempty"`
-	Object         string `json:"object,omitempty"`
+	Bucket          string `json:"bucket,omitempty"`
+	Object          string `json:"object,omitempty"`
 	ObjectUnescaped string `json:"object_unescaped,omitempty"`
 }
 
