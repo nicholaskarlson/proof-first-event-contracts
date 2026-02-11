@@ -1,0 +1,10 @@
+{
+  "should_run": false,
+  "decision": "ignore",
+  "reason": "ignore: non-finalize event (google.cloud.storage.object.v1.deleted)",
+  "event_type": "google.cloud.storage.object.v1.deleted",
+  "event_id": "evt-case03",
+  "bucket": "pf-drop-bucket",
+  "object": "drop/right.csv",
+  "object_unescaped": "drop/right.csv"
+}

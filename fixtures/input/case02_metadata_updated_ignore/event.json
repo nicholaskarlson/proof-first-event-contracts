@@ -1,0 +1,11 @@
+{
+  "specversion": "1.0",
+  "type": "google.cloud.storage.object.v1.metadataUpdated",
+  "source": "//storage.googleapis.com/projects/_/buckets/pf-drop-bucket",
+  "id": "evt-case02",
+  "subject": "objects/drop/left.csv",
+  "data": {
+    "bucket": "pf-drop-bucket",
+    "name": "drop/left.csv"
+  }
+}

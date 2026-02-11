@@ -1,0 +1,8 @@
+# Keep fixture/golden diffs meaningful across OSes.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

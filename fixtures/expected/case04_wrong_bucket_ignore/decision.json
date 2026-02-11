@@ -1,0 +1,10 @@
+{
+  "should_run": false,
+  "decision": "ignore",
+  "reason": "ignore: bucket mismatch (got \"other-bucket\", want \"pf-drop-bucket\")",
+  "event_type": "google.cloud.storage.object.v1.finalized",
+  "event_id": "evt-case04",
+  "bucket": "other-bucket",
+  "object": "drop/left.csv",
+  "object_unescaped": "drop/left.csv"
+}

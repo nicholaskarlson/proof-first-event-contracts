@@ -1,0 +1,10 @@
+{
+  "should_run": false,
+  "decision": "ignore",
+  "reason": "ignore: non-finalize event (google.cloud.storage.object.v1.metadataUpdated)",
+  "event_type": "google.cloud.storage.object.v1.metadataUpdated",
+  "event_id": "evt-case02",
+  "bucket": "pf-drop-bucket",
+  "object": "drop/left.csv",
+  "object_unescaped": "drop/left.csv"
+}

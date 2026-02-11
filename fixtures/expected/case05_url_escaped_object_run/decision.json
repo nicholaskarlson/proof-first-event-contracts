@@ -1,0 +1,10 @@
+{
+  "should_run": true,
+  "decision": "run",
+  "reason": "run: finalized event in expected bucket",
+  "event_type": "google.cloud.storage.object.v1.finalized",
+  "event_id": "evt-case05",
+  "bucket": "pf-drop-bucket",
+  "object": "drop%2Fright.csv",
+  "object_unescaped": "drop/right.csv"
+}

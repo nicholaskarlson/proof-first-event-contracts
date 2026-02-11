@@ -1,0 +1,11 @@
+{
+  "specversion": "1.0",
+  "type": "google.cloud.storage.object.v1.finalized",
+  "source": "//storage.googleapis.com/projects/_/buckets/other-bucket",
+  "id": "evt-case04",
+  "subject": "objects/drop/left.csv",
+  "data": {
+    "bucket": "other-bucket",
+    "name": "drop/left.csv"
+  }
+}
