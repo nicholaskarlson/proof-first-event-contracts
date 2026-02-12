@@ -1,81 +1,110 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
-
-	"github.com/nicholaskarlson/proof-first-event-contracts/contract"
-	"github.com/nicholaskarlson/proof-first-event-contracts/internal/fsx"
+	"strings"
 )
 
-const (
-	fixturesIn  = "fixtures/input"
-	fixturesExp = "fixtures/expected"
-)
-
-func demo(outDir string, expectedBucket string) error {
-	// Clean outDir to avoid stale artifacts.
-	if err := fsx.RemoveAll(outDir); err != nil {
-		return fmt.Errorf("demo: remove out dir: %w", err)
-	}
-	if err := fsx.MustMkdirAll(outDir); err != nil {
-		return fmt.Errorf("demo: mkdir out dir: %w", err)
+func cmdDemo(args []string) int {
+	outDir := "./out"
+	if len(args) >= 2 && args[0] == "--out" {
+		outDir = args[1]
 	}
 
-	cases, err := listCases(fixturesIn)
+	_ = os.RemoveAll(outDir)
+	_ = os.MkdirAll(outDir, 0o755)
+
+	ents, err := os.ReadDir("fixtures/input")
 	if err != nil {
-		return err
+		fmt.Fprintf(os.Stderr, "read fixtures: %v\n", err)
+		return 1
 	}
 
-	for _, c := range cases {
-		inFile := filepath.Join(fixturesIn, c, "event.json")
-		raw, err := os.ReadFile(inFile)
+	var names []string
+	for _, e := range ents {
+		if e.IsDir() {
+			names = append(names, e.Name())
+		}
+	}
+	sort.Strings(names)
+
+	// Book fixtures are pinned to this bucket name.
+	bucket := "pf-drop-bucket"
+
+	for _, c := range names {
+		caseDir := filepath.Join("fixtures/input", c)
+
+		eventarc := false
+		inPath := filepath.Join(caseDir, "event.json")
+		if _, err := os.Stat(filepath.Join(caseDir, "body.json")); err == nil {
+			eventarc = true
+			inPath = filepath.Join(caseDir, "body.json")
+		}
+
+		raw, err := os.ReadFile(inPath)
 		if err != nil {
-			return fmt.Errorf("demo: read fixture %s: %w", inFile, err)
+			fmt.Fprintf(os.Stderr, "read %s: %v\n", inPath, err)
+			return 1
 		}
 
-		dec, ref, errText := contract.ParseAndDecide(raw, expectedBucket)
-
-		outCase := filepath.Join(outDir, c)
-		if err := fsx.MustMkdirAll(outCase); err != nil {
-			return fmt.Errorf("demo: mkdir case out dir: %w", err)
-		}
-
-		if errText != nil {
-			if err := fsx.WriteText(filepath.Join(outCase, "error.txt"), *errText); err != nil {
-				return fmt.Errorf("demo: write error.txt: %w", err)
-			}
-		} else {
-			if err := fsx.WriteJSON(filepath.Join(outCase, "decision.json"), dec); err != nil {
-				return fmt.Errorf("demo: write decision.json: %w", err)
-			}
-			if err := fsx.WriteJSON(filepath.Join(outCase, "object_ref.json"), ref); err != nil {
-				return fmt.Errorf("demo: write object_ref.json: %w", err)
+		ceType := ""
+		if eventarc {
+			if b, err := os.ReadFile(filepath.Join(caseDir, "ce_type.txt")); err == nil {
+				ceType = strings.TrimSpace(string(b))
 			}
 		}
 
-		expCase := filepath.Join(fixturesExp, c)
-		if err := fsx.CompareDirs(expCase, outCase); err != nil {
-			return fmt.Errorf("case %s: %w", c, err)
+		gotDir := filepath.Join(outDir, c)
+		if err := parseOne(raw, gotDir, bucket, eventarc, ceType); err != nil {
+			fmt.Fprintf(os.Stderr, "case %s: %v\n", c, err)
+			return 1
+		}
+
+		expDir := filepath.Join("fixtures/expected", c)
+		if same, why := dirsEqual(expDir, gotDir); !same {
+			fmt.Fprintf(os.Stderr, "MISMATCH %s: %s\n", c, why)
+			return 1
 		}
 	}
 
-	return nil
+	fmt.Println("OK: demo outputs match fixtures (all case(s))")
+	return 0
 }
 
-func listCases(dir string) ([]string, error) {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, fmt.Errorf("demo: read fixtures dir: %w", err)
-	}
-	var cases []string
-	for _, e := range entries {
-		if e.IsDir() {
-			cases = append(cases, e.Name())
+func dirsEqual(a, b string) (bool, string) {
+	la, _ := os.ReadDir(a)
+	lb, _ := os.ReadDir(b)
+
+	var aa, bb []string
+	for _, e := range la {
+		if !e.IsDir() {
+			aa = append(aa, e.Name())
 		}
 	}
-	sort.Strings(cases)
-	return cases, nil
+	for _, e := range lb {
+		if !e.IsDir() {
+			bb = append(bb, e.Name())
+		}
+	}
+
+	sort.Strings(aa)
+	sort.Strings(bb)
+
+	if strings.Join(aa, ",") != strings.Join(bb, ",") {
+		return false, "file list differs"
+	}
+
+	for _, name := range aa {
+		ba, _ := os.ReadFile(filepath.Join(a, name))
+		bb, _ := os.ReadFile(filepath.Join(b, name))
+		if !bytes.Equal(ba, bb) {
+			return false, fmt.Sprintf("%s differs", name)
+		}
+	}
+
+	return true, "ok"
 }
