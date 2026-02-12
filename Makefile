@@ -9,4 +9,4 @@ demo:
 	go run ./cmd/eventcontracts demo --out ./out
 
 fmt:
-	gofmt -w ./cmd ./internal
+	gofmt -w ./cmd ./contract ./internal
