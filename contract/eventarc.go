@@ -85,7 +85,7 @@ func ParseEventarcAndDecide(ceType string, body []byte, expectedBucket string) (
 
 	// Finalized: enforce expected bucket.
 	exp := clean(expectedBucket)
-	if ref.Bucket != exp {
+	if exp != "" && ref.Bucket != exp {
 		dec.ShouldRun = false
 		dec.Decision = "ignore"
 		dec.Reason = fmt.Sprintf("ignore: bucket mismatch (got %q, want %q)", ref.Bucket, exp)
