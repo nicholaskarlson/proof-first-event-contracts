@@ -28,6 +28,22 @@ If this is green locally and in CI, the repo can:
 
 ---
 
+
+## Where this fits (Book 2)
+
+This repo is designed to be used alongside the other Book 2 repos:
+
+- Anchor: `finance-pipeline-gcp` — deployable drop-folder workflow (trigger → run → artifacts → markers)
+- Repo A: `proof-first-event-contracts` — event parsing contract + fixtures/goldens + expected-fail
+- Repo B: `proof-first-deploy-gcp` — deterministic deploy evidence (render + verify) + fixtures/goldens
+- Repo C: `proof-first-casefiles` — engagement kits you can hand to a client (or use in teaching)
+
+## Go baseline + CI witness
+
+- Baseline: **Go 1.22.x**
+- CI witness: **ubuntu/macos/windows** on Go 1.22.x, plus **stable** on ubuntu to catch drift.
+
+
 ## Layout (fixtures + goldens)
 
 Fixtures (inputs):
