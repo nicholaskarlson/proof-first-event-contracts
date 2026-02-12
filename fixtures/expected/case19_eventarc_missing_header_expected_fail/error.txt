@@ -1,0 +1,1 @@
+error: missing required Eventarc header (Ce-Type)
