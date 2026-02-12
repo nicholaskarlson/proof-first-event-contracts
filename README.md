@@ -32,7 +32,16 @@ If this is green locally and in CI, the repo can:
 
 Fixtures (inputs):
 
+Each case folder is one of two shapes:
+
+1) CloudEvents JSON fixture:
+
 - `fixtures/input/CASE/event.json`
+
+2) Eventarc delivery fixture (Eventarc posts a body + the event type arrives in the `Ce-Type` header):
+
+- `fixtures/input/CASE/body.json`
+- `fixtures/input/CASE/ce_type.txt`
 
 Goldens (expected outputs):
 
@@ -68,3 +77,15 @@ cat ./tmp/case01/decision.json
 cat ./tmp/case01/object_ref.json
 ```
 
+Eventarc-style fixture:
+
+```bash
+go run ./cmd/eventcontracts parse \
+  --eventarc \
+  --ce-type "$(cat fixtures/input/case16_eventarc_direct_finalized_run/ce_type.txt)" \
+  --in fixtures/input/case16_eventarc_direct_finalized_run/body.json \
+  --out ./tmp/case16 \
+  --bucket pf-drop-bucket
+cat ./tmp/case16/decision.json
+cat ./tmp/case16/object_ref.json
+```
