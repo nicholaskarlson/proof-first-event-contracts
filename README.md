@@ -1,107 +1,83 @@
 # proof-first-event-contracts
 
-Repo A for **Book 2** (*Proof-First Pipelines in the Cloud*): fixture-backed **event contracts** for Cloud Storage / Eventarc-style CloudEvents.
+**Repo A (Book 2): event contracts** — fixture-backed parsing + filtering for Cloud Storage / Eventarc-style CloudEvents.
 
-**Goal:** turn “incoming storage event” into **deterministic artifacts** you can review as diffs:
-- `decision.json` — should we run or ignore?
-- `object_ref.json` — parsed bucket + object name (with URL-unescaped variant)
-- `error.txt` — expected-fail contract (stable error text, ends with a single newline)
+![ci](https://github.com/nicholaskarlson/proof-first-event-contracts/actions/workflows/ci.yml/badge.svg)
+![license](https://img.shields.io/badge/license-MIT-blue.svg)
 
-This repo is designed to anchor Book 2 chapters while deployment repos evolve.
+> **Book:** *Proof-First Pipelines in the Cloud* (Book 2)  
+> This repo is **Repo A (Repo 2 of 4)**. The exact code referenced in the manuscript is tagged **[`book2-v1`](https://github.com/nicholaskarlson/proof-first-event-contracts/tree/book2-v1)**.
 
----
+**Goal:** turn “incoming storage event” into deterministic artifacts you can review as diffs:
 
-## Canonical commands (proof-first)
+- `decision.json` — run vs. ignore (with a stable reason)
+- `object_ref.json` — parsed bucket + object name (and URL-unescaped variant)
+- `error.txt` — expected-fail contract (stable error text, ends with a newline)
 
-```bash
-# Proof gate (one command)
-make verify
+**Go baseline:** 1.22.x (CI witnesses ubuntu/macos/windows on 1.22.x, plus ubuntu “stable”).
 
-# Portable (no Makefile)
-go test -count=1 ./...
-go run ./cmd/eventcontracts demo --out ./out
-```
-
-If this is green locally and in CI, the repo can:
-1) recompute fixture outputs deterministically, and  
-2) byte-verify them against goldens.
-
----
-
-
-## Where this fits (Book 2)
+## Book 2 suite map
 
 This repo is designed to be used alongside the other Book 2 repos:
 
-- Anchor: `finance-pipeline-gcp` — deployable drop-folder workflow (trigger → run → artifacts → markers)
-- Repo A: `proof-first-event-contracts` — event parsing contract + fixtures/goldens + expected-fail
-- Repo B: `proof-first-deploy-gcp` — deterministic deploy evidence (render + verify) + fixtures/goldens
-- Repo C: `proof-first-casefiles` — engagement kits you can hand to a client (or use in teaching)
+- **[finance-pipeline-gcp](https://github.com/nicholaskarlson/finance-pipeline-gcp)** — anchor drop-folder workflow (trigger → run → artifacts → markers)
+- **[proof-first-event-contracts](https://github.com/nicholaskarlson/proof-first-event-contracts)** — event parsing contract + fixtures/goldens + expected-fail
+- **[proof-first-deploy-gcp](https://github.com/nicholaskarlson/proof-first-deploy-gcp)** — deterministic deploy evidence (render + verify) + fixtures/goldens
+- **[proof-first-casefiles](https://github.com/nicholaskarlson/proof-first-casefiles)** — engagement kits you can hand to a client (or use in teaching)
 
-## Go baseline + CI witness
+## Quickstart
 
-- Baseline: **Go 1.22.x**
-- CI witness: **ubuntu/macos/windows** on Go 1.22.x, plus **stable** on ubuntu to catch drift.
-
-
-## Layout (fixtures + goldens)
-
-Fixtures (inputs):
-
-Each case folder is one of two shapes:
-
-1) CloudEvents JSON fixture:
-
-- `fixtures/input/CASE/event.json`
-
-2) Eventarc delivery fixture (Eventarc posts a body + the event type arrives in the `Ce-Type` header):
-
-- `fixtures/input/CASE/body.json`
-- `fixtures/input/CASE/ce_type.txt`
-
-Goldens (expected outputs):
-
-- `fixtures/expected/CASE/decision.json`
-- `fixtures/expected/CASE/object_ref.json`
-- `fixtures/expected/CASE/error.txt` (expected-fail only)
-
-Demo outputs (recomputed):
-
-- `out/CASE/...`
-
-**Expected-fail rule:** if `fixtures/expected/CASE/error.txt` exists, the case must produce **only** `out/CASE/error.txt` and it must match byte-for-byte.
-
----
-
-## What “decision” means
-
-Current contract is intentionally small and matches the Book 2 workflow:
-
-- **RUN** if the event is a *finalize* event **and** the bucket matches `--bucket` (default: `pf-drop-bucket`).
-- **IGNORE** otherwise (non-finalize noise events, wrong bucket, etc.).
-- **ERROR** (expected-fail) if the payload is invalid JSON or missing required fields for parsing.
-
-Object names are URL-unescaped (e.g. `"drop%2Fleft.csv" → "drop/left.csv"`) before downstream use.
-
----
-
-## Run one case manually (optional)
+Run the proof gate:
 
 ```bash
-go run ./cmd/eventcontracts parse --in fixtures/input/case01_finalized_good/event.json --out ./tmp/case01
-cat ./tmp/case01/decision.json
-cat ./tmp/case01/object_ref.json
+make verify
+# (optional) Equivalent, if you want to run it directly:
+# go test -count=1 ./...
 ```
 
-Eventarc-style fixture:
+Run the deterministic fixture demo (recomputes outputs and diffs against `fixtures/expected/**`):
 
 ```bash
-go run ./cmd/eventcontracts parse \
-  --eventarc \
-  --ce-type "$(cat fixtures/input/case16_eventarc_direct_finalized_run/ce_type.txt)" \
-  --in fixtures/input/case16_eventarc_direct_finalized_run/body.json \
-  --out ./tmp/case16 \
-  --bucket pf-drop-bucket
-cat ./tmp/case16/decision.json
-cat ./tmp/case16/object_ref.json
+go run ./cmd/eventcontracts demo --out ./out
 ```
+
+## Fixture layout (proof gate)
+
+Each fixture case is a folder name (the book references only these names).
+
+Inputs live under:
+
+- `fixtures/input/<case>/event.json` (CloudEvent / Eventarc envelope fixture)
+
+Goldens live under:
+
+- `fixtures/expected/<case>/decision.json` + `object_ref.json` **OR**
+- `fixtures/expected/<case>/error.txt` (expected-fail cases)
+
+## Output artifacts
+
+On success, this repo emits:
+
+- `decision.json` — stable “run vs ignore” decision (pretty JSON + trailing newline)
+- `object_ref.json` — stable parsed object identity (pretty JSON + trailing newline)
+
+For expected-fail (contract violations), the output is:
+
+- `error.txt` only (must end with a newline)
+
+## Rules enforced (book-friendly, audit-friendly)
+
+- **Deterministic ordering** and stable JSON formatting.
+- **No entropy** in artifacts: no timestamps, UUIDs, random IDs, or host-specific paths.
+- **LF-only** output text artifacts (repo normalized via `.gitattributes`).
+- **Expected-fail** cases produce **only** `error.txt`.
+
+## Docs
+
+- `docs/CONVENTIONS.md` — determinism + expected-fail rules (suite tone)
+- `docs/CONTRACT.md` — what inputs are accepted and what artifacts are emitted
+- `docs/HANDOFF.md` — how downstream services should use these artifacts
+
+## License
+
+MIT (see `LICENSE`).
