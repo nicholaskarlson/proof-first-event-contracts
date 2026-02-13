@@ -1,9 +1,21 @@
-# Conventions (suite-wide)
+# Conventions
 
-This repo follows the same “proof-first” conventions as the rest of the toolkit:
+These conventions exist so the repo can *prove* its outputs: deterministic artifacts + fixtures + goldens + a verification gate.
 
-- **Deterministic artifacts**: no timestamps, random IDs, or environment noise in verified outputs.
-- **Stable ordering**: fixture cases are processed in sorted order.
-- **LF line endings**: fixtures and goldens are committed with LF.
-- **Atomic writes**: outputs are written via temp file → rename.
-- **Expected-fail contract**: if `fixtures/expected/CASE/error.txt` exists, the case must produce only `out/CASE/error.txt` and it must match byte-for-byte (ending with a single newline).
+## Line endings
+- **LF only** (enforced via `.gitattributes`).
+
+## Determinism
+Artifacts must be deterministic:
+- stable ordering (sorted case lists; no filesystem walk order dependence)
+- stable formatting (pretty JSON + trailing newline)
+- no timestamps, UUIDs, random IDs, or other entropy in outputs
+
+## Atomic writes
+Artifacts are written via temp file → rename so partial files never appear.
+
+## Expected-fail
+Expected-fail cases emit **only**:
+- `error.txt` (must end with a newline)
+
+The proof gate (`make verify`) recomputes outputs and compares them byte-for-byte to `fixtures/expected/**`.
