@@ -38,9 +38,13 @@ type Decision struct {
 // ParseAndDecide parses a CloudEvent and returns deterministic artifacts.
 // If the event cannot be parsed safely, it returns a deterministic error string.
 func ParseAndDecide(raw []byte, expectedBucket string) (Decision, ObjectRef, *string) {
-	// 1) Parse CloudEvent JSON (strict enough to catch malformed payloads).
-	var ev CloudEvent
-	if err := json.Unmarshal(raw, &ev); err != nil {
+	// 1) Parse CloudEvent JSON (unknown-field rejection, book-friendly).
+	ev, err := decodeCloudEventStrict(raw)
+	if err != nil {
+		if strings.Contains(err.Error(), "unknown field") {
+			msg := "error: unknown field in CloudEvent input\n"
+			return Decision{}, ObjectRef{}, &msg
+		}
 		msg := "error: invalid JSON (failed to parse CloudEvent)\n"
 		return Decision{}, ObjectRef{}, &msg
 	}

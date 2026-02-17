@@ -21,6 +21,9 @@ The contract is “best-effort parse with strict outputs”:
 - if we can parse the event into a stable decision + object identity, we emit JSON artifacts
 - if the fixture is malformed or missing required fields, we emit only `error.txt`
 
+Additional strictness (book-friendly):
+- unknown top-level fields in the CloudEvent envelope are rejected (expected-fail)
+
 ---
 
 ## 2) Output artifacts (success)
