@@ -43,6 +43,12 @@ go run ./cmd/eventcontracts demo --out ./out
 
 ## Fixture layout (proof gate)
 
+**Book 4 (Chapter 2) fixture cases:**
+
+- `case01_schemas_smoke`
+- `case02_bad_unknown_config_field_expected_fail`
+
+
 Each fixture case is a folder name (the book references only these names).
 
 Inputs live under:

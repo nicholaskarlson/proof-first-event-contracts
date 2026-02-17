@@ -1,0 +1,12 @@
+{
+  "specversion": "1.0",
+  "type": "google.cloud.storage.object.v1.finalized",
+  "source": "//storage.googleapis.com/projects/_/buckets/pf-drop-bucket",
+  "id": "evt-bad-unknown-field",
+  "subject": "objects/drop/schema.json",
+  "unexpected_field": "this must fail",
+  "data": {
+    "bucket": "pf-drop-bucket",
+    "name": "drop/schema.json"
+  }
+}
